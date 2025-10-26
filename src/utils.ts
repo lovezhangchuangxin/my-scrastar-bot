@@ -25,3 +25,15 @@ export function generateId(length = 8) {
   }
   return id;
 }
+
+/**
+ * 查找有指定资源的星球
+ */
+export function findPlanetsWithResource(
+  galaxy: Galaxy,
+  resourceType: string
+): Planet[] {
+  return galaxy.getPlanets().filter((planet) => {
+    return planet.resources[resourceType] > 0;
+  });
+}

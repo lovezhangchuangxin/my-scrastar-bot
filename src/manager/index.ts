@@ -1,5 +1,6 @@
 import { global } from "../global";
 import { getGalaxyMemory } from "../memory";
+import { publishTask } from "./strategy";
 import {
   BuildTask,
   executeBuildTask,
@@ -15,7 +16,9 @@ export function executeGalaxiesTask() {
   Object.keys(galaxies).forEach((id) => {
     const galaxyId = +id;
     const galaxyMemory = getGalaxyMemory(galaxyId);
-    const tasks = galaxyMemory.tasks || [];
+    const tasks = galaxyMemory.taskList || [];
+
+    publishTask(galaxyId);
 
     tasks.forEach((task) => {
       // 获取所有绑定的船，去除不存在的
@@ -33,7 +36,7 @@ export function executeGalaxiesTask() {
       }
     });
 
-    galaxyMemory.tasks = tasks.filter((task) => {
+    galaxyMemory.taskList = tasks.filter((task) => {
       return !task.done;
     });
   });

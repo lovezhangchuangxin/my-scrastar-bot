@@ -9,9 +9,9 @@ declare global {
   interface GalaxyMemory {}
 
   interface Memory {
-    ships: Record<string, ShipMemory>;
-    structures: Record<string, StructureMemory>;
-    galaxies: Record<string, GalaxyMemory>;
+    myShips: Record<string, ShipMemory>;
+    myStructures: Record<string, StructureMemory>;
+    myGalaxies: Record<string, GalaxyMemory>;
   }
 }
 
@@ -26,21 +26,21 @@ export function getMemory(): Memory {
  * 获取 ship memory
  */
 export function getShipMemory(shipId: number) {
-  return getMemory().ships[shipId] || {};
+  return getMemory().myShips[shipId] || {};
 }
 
 /**
  * 获取建筑 memory
  */
 export function getStructureMemory(structureId: number) {
-  return getMemory().structures[structureId] || {};
+  return getMemory().myStructures[structureId] || {};
 }
 
 /**
  * 获取星系 memory
  */
 export function getGalaxyMemory(galaxyId: number) {
-  return getMemory().galaxies[galaxyId] || {};
+  return getMemory().myGalaxies[galaxyId] || {};
 }
 
 /**
@@ -48,33 +48,39 @@ export function getGalaxyMemory(galaxyId: number) {
  */
 export function initMemory() {
   const memory = getMemory();
-  if (!memory.ships) {
-    memory.ships = {};
+  if (!memory.myShips) {
+    memory.myShips = {};
   }
-  if (!memory.structures) {
-    memory.structures = {};
+  if (!memory.myStructures) {
+    memory.myStructures = {};
   }
-  if (!memory.galaxies) {
-    memory.galaxies = {};
+  if (!memory.myGalaxies) {
+    memory.myGalaxies = {};
   }
 
   const ships = Game.getMyShips();
   ships.forEach((ship) => {
-    if (!memory.ships[ship.id]) {
-      memory.ships[ship.id] = {} as ShipMemory;
+    if (!memory.myShips[ship.id]) {
+      memory.myShips[ship.id] = {} as ShipMemory;
     }
 
-    if (!memory.galaxies[ship.galaxyId]) {
-      memory.galaxies[ship.galaxyId] = {
-        tasks: [],
+    if (!memory.myGalaxies[ship.galaxyId]) {
+      memory.myGalaxies[ship.galaxyId] = {
+        taskList: [],
       } as GalaxyMemory;
     }
   });
 
   const structures = Game.getMyStructures();
   structures.forEach((structure) => {
-    if (!memory.structures[structure.id]) {
-      memory.structures[structure.id] = {} as StructureMemory;
+    if (!memory.myStructures[structure.id]) {
+      memory.myStructures[structure.id] = {} as StructureMemory;
+    }
+  });
+
+  Object.values(memory.myGalaxies).forEach((galaxyMemory) => {
+    if (!galaxyMemory.taskList) {
+      galaxyMemory.taskList = [];
     }
   });
 }
@@ -87,17 +93,17 @@ export function clearMemory() {
 
   const ships = Game.getMyShips();
   const shipIdSet = new Set(ships.map((ship) => ship.id));
-  Object.keys(memory.ships).forEach((shipId) => {
+  Object.keys(memory.myShips).forEach((shipId) => {
     if (!shipIdSet.has(+shipId)) {
-      delete memory.ships[shipId];
+      delete memory.myShips[shipId];
     }
   });
 
   const structures = Game.getMyStructures();
   const structureIdSet = new Set(structures.map((structure) => structure.id));
-  Object.keys(memory.structures).forEach((structureId) => {
+  Object.keys(memory.myStructures).forEach((structureId) => {
     if (!structureIdSet.has(+structureId)) {
-      delete memory.structures[structureId];
+      delete memory.myStructures[structureId];
     }
   });
 

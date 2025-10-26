@@ -1,7 +1,7 @@
 // 建造任务
 
 import { getShipMemory } from "../../memory";
-import { generateId } from "../../utils";
+import { findPlanetsWithResource, generateId } from "../../utils";
 import { BaseTask } from "../types";
 
 /**
@@ -56,6 +56,45 @@ export function executeBuildTask(task: BuildTask, ships: Ship[] = []) {
       return;
     }
 
+    const shipMemory = getShipMemory(ship.id);
+    const structure = planet.getStructures().filter((structure) => {
+      return structure.type === structureType && structure.progress < 100;
+    })[0];
+    const needResource = Object.entries(
+      structure?.remainingResources ||
+        Game.getStructureCost(structureType).resources ||
+        {}
+    ).find(([res, amount]) => {
+      return (ship.storage[res] || 0) < amount;
+    })?.[0];
+
+    // 资源不够
+    if (shipMemory.working && ship.getStorageUsed() <= 0 && needResource) {
+      shipMemory.working = false;
+    }
+    if (
+      !shipMemory.working &&
+      (!needResource || ship.getStorageAvailable() <= 0)
+    ) {
+      shipMemory.working = true;
+    }
+
+    // 去挖资源
+    if (!shipMemory.working && needResource) {
+      const planet = findPlanetsWithResource(galaxy, needResource)[0];
+      if (!planet) {
+        console.log(`没有${needResource}的矿点`);
+        return;
+      }
+
+      if (ship.pos.getRangeTo(planet.pos) > 1) {
+        ship.moveTo(planet.pos);
+        return;
+      }
+
+      ship.harvest(planet, needResource);
+    }
+
     if (ship.pos.getRangeTo(planet.pos) > 1) {
       ship.moveTo(planet.pos);
       return;
@@ -70,10 +109,8 @@ export function executeBuildTask(task: BuildTask, ships: Ship[] = []) {
       }
       return;
     }
-    const structure = planet.getStructures().filter((structure) => {
-      return structure.type === structureType && structure.progress < 100;
-    })[0];
-    if (!structure) {
+
+    if (!structure || structure.progress >= 100) {
       task.done = true;
       return;
     }
@@ -100,6 +137,7 @@ function bindShips(task: BuildTask) {
 
     shipMemory.taskId = task.id;
     task.ships.push(ship.id);
+    shipMemory.working = false;
     if (task.ships.length >= shipCount) break;
   }
 }

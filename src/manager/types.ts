@@ -16,6 +16,6 @@ export interface BaseTask {
 
 declare global {
   interface GalaxyMemory {
-    tasks: BaseTask[];
+    taskList: BaseTask[];
   }
 }
