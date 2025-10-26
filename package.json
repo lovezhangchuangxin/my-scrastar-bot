@@ -1,0 +1,31 @@
+{
+  "name": "my-scrastar-bot",
+  "version": "0.1.0",
+  "description": "",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "install": "node scripts/install.js"
+  },
+  "keywords": [
+    "scrastar",
+    "bot",
+    "scrastar-bot"
+  ],
+  "author": {
+    "name": "lovezhangchuangxin",
+    "email": "2911331070@qq.com"
+  },
+  "license": "MIT",
+  "packageManager": "pnpm@10.14.0",
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "axios": "^1.12.2",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.3"
+  }
+}
