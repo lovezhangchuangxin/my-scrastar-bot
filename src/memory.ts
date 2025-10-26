@@ -53,6 +53,9 @@ export function initMemory() {
   if (!memory.structures) {
     memory.structures = {};
   }
+  if (!memory.galaxies) {
+    memory.galaxies = {};
+  }
 
   const ships = Game.getMyShips();
   ships.forEach((ship) => {

@@ -7,7 +7,7 @@ import { BaseTask } from "../types";
  */
 export interface HarvestTask extends BaseTask {
   /** 矿点所在星球 */
-  planetId: number;
+  planetName: string;
   /** 矿的类型 */
   resourceType: string;
   /** 需要的数量 */
@@ -24,7 +24,37 @@ export function executeHarvestTask(task: HarvestTask, ships: Ship[] = []) {
   ships.forEach((ship) => {
     // 飞船资源已满足
     if ((ship.storage[resourceType] || 0) > amount) {
+      if (!task.storageId) {
+        task.done = true;
+        return;
+      }
+
+      const storage = global.myStructures[task.storageId];
+      if (!storage || storage.getStorageAvailable() < amount) {
+        task.done = true;
+        return;
+      }
+
+      // TODO：将资源运动到指定建筑
+
       return;
     }
+
+    // 前往目标星球采集资源
+    const galaxy = Game.getGalaxy(ship.galaxyId);
+    const targetPlanet = galaxy
+      .getPlanets()
+      .find((planet) => planet.name === task.planetName);
+    if (!targetPlanet || targetPlanet.resources[resourceType] == undefined) {
+      task.done = true;
+      return;
+    }
+
+    if (ship.pos.getRangeTo(targetPlanet.pos) > 1) {
+      ship.moveTo(targetPlanet.pos);
+      return;
+    }
+
+    ship.harvest(targetPlanet, resourceType);
   });
 }

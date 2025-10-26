@@ -1,5 +1,5 @@
 import { initGlobal } from "./global";
-import { clearMemory, getMemory, initMemory } from "./memory";
+import { clearMemory, initMemory } from "./memory";
 
 export function main() {
   initGlobal();

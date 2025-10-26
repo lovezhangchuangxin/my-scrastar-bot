@@ -9,6 +9,8 @@ declare global {
   }
 }
 
+var global = {} as any;
+
 export function initGlobal() {
   global.myShips = {};
   global.myStructures = {};
