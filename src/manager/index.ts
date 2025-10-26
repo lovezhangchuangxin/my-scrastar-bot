@@ -1,5 +1,11 @@
+import { global } from "../global";
 import { getGalaxyMemory } from "../memory";
-import { executeHarvestTask, HarvestTask } from "./tasks";
+import {
+  BuildTask,
+  executeBuildTask,
+  executeHarvestTask,
+  HarvestTask,
+} from "./tasks";
 
 /**
  * 执行所有星系的任务
@@ -9,7 +15,7 @@ export function executeGalaxiesTask() {
   Object.keys(galaxies).forEach((id) => {
     const galaxyId = +id;
     const galaxyMemory = getGalaxyMemory(galaxyId);
-    const tasks = galaxyMemory.tasks;
+    const tasks = galaxyMemory.tasks || [];
 
     tasks.forEach((task) => {
       // 获取所有绑定的船，去除不存在的
@@ -22,6 +28,8 @@ export function executeGalaxiesTask() {
         case "harvest":
           executeHarvestTask(task as HarvestTask, ships);
           break;
+        case "build":
+          executeBuildTask(task as BuildTask, ships);
       }
     });
 

@@ -1,6 +1,7 @@
 declare global {
   interface ShipMemory {
     working: boolean;
+    taskId?: string;
   }
 
   interface StructureMemory {}
@@ -18,28 +19,28 @@ declare global {
  * 获取有类型的 Memory（现在的 Memory全局对象并未类型导致没法扩展，后续 Memory 类型规范后就不需要该函数了）
  */
 export function getMemory(): Memory {
-  return Memory as Memory;
+  return (Memory || {}) as Memory;
 }
 
 /**
  * 获取 ship memory
  */
 export function getShipMemory(shipId: number) {
-  return getMemory().ships[shipId];
+  return getMemory().ships[shipId] || {};
 }
 
 /**
  * 获取建筑 memory
  */
 export function getStructureMemory(structureId: number) {
-  return getMemory().structures[structureId];
+  return getMemory().structures[structureId] || {};
 }
 
 /**
  * 获取星系 memory
  */
 export function getGalaxyMemory(galaxyId: number) {
-  return getMemory().galaxies[galaxyId];
+  return getMemory().galaxies[galaxyId] || {};
 }
 
 /**
@@ -64,7 +65,9 @@ export function initMemory() {
     }
 
     if (!memory.galaxies[ship.galaxyId]) {
-      memory.galaxies[ship.galaxyId] = {} as GalaxyMemory;
+      memory.galaxies[ship.galaxyId] = {
+        tasks: [],
+      } as GalaxyMemory;
     }
   });
 

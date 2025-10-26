@@ -8,6 +8,8 @@ export interface BaseTask {
   type: string;
   /** 绑定的 ship id */
   ships: number[];
+  /** 需要的 ship 数量 */
+  shipCount: number;
   /** 是否完成 */
   done: boolean;
 }

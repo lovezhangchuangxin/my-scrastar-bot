@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-var global = {} as any;
+export var global = {} as any;
 
 export function initGlobal() {
   global.myShips = {};

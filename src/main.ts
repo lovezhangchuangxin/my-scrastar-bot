@@ -1,13 +1,15 @@
 import { initGlobal } from "./global";
+import { executeGalaxiesTask } from "./manager";
 import { clearMemory, initMemory } from "./memory";
 
 export function main() {
   initGlobal();
   initMemory();
 
-  // console.log(Game.getStructureCost(STRUCTURE.FACTORY));
+  executeGalaxiesTask();
 
   clearMemory();
+  // console.log(Game.getStructureCost(STRUCTURE.FACTORY));
 }
 
 declare global {
