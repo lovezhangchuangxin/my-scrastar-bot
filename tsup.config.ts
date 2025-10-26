@@ -2,14 +2,19 @@ import { defineConfig } from "tsup";
 import { uploadCode } from "./scripts/upload";
 
 export default defineConfig({
-  entry: ["src/main.ts"], // 入口文件
-  splitting: false, // 是否拆分文件
-  sourcemap: false, // 是否生成 sourcemap
-  clean: true, // 打包前是否清除输出目录
-  format: ["esm"], // 输出格式
-  minify: false, // 是否压缩
-  treeshake: false, // 是否进行树摇
-  // 构建成功后执行
+  // 入口文件
+  entry: ["src/main.ts"],
+  // 是否拆分代码为多个文件
+  splitting: false,
+  // 是否生成 sourcemap
+  sourcemap: false,
+  // 打包前是否清空输出目录
+  clean: true,
+  // 打包格式
+  format: ["esm"],
+  // 是否压缩代码
+  minify: false,
+  // 打包成功后的回调
   async onSuccess() {
     uploadCode();
   },

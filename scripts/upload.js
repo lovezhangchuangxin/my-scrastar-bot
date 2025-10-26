@@ -32,9 +32,9 @@ export async function uploadCode() {
   );
 
   if (response.status === 200) {
-    console.log("上传成功");
+    console.log("代码上传游戏服务器成功");
   } else {
-    console.log("上传失败");
+    console.log("代码上传游戏服务器失败");
   }
 }
 

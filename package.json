@@ -1,7 +1,7 @@
 {
   "name": "my-scrastar-bot",
   "version": "0.1.0",
-  "description": "",
+  "description": "My scrastar bot",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
