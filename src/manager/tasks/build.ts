@@ -93,6 +93,10 @@ export function executeBuildTask(task: BuildTask, ships: Ship[] = []) {
       }
 
       ship.harvest(planet, needResource);
+      console.log(
+        `建造 ${structureType} 缺少 ${needResource}，正在采集 ${needResource}`
+      );
+      return;
     }
 
     if (ship.pos.getRangeTo(planet.pos) > 1) {
