@@ -13,9 +13,7 @@ export async function uploadCode() {
   if (!code) return;
 
   const url = `${config.protocol}://${config.hostname}:${config.port}/api/code`;
-  const token = config.token.startsWith("Bearer ")
-    ? config.token
-    : `Bearer ${config.token}`;
+  const token = config.token;
   const response = await axios.post(
     url,
     JSON.stringify({
@@ -25,8 +23,8 @@ export async function uploadCode() {
     }),
     {
       headers: {
-        Authorization: token,
         "Content-Type": "application/json",
+        "X-API-Token": token,
       },
     }
   );
