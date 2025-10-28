@@ -1,6 +1,86 @@
 /**
  * Star Empire Game API TypeScript Definitions
  * 用于 Monaco 编辑器的代码提示
+ *
+ * 模块系统说明：
+ * - 游戏会自动执行 main.js 中的 main() 函数作为入口
+ * - 支持 ES6 import/export 和 CommonJS require/module.exports 两种方式
+ *
+ * ES6 模块示例：
+ * // utils.js (ES6 风格 - 推荐)
+ * export function helper() {
+ *   console.log("辅助函数");
+ * }
+ * export const VERSION = "1.0.0";
+ *
+ * // main.js
+ * import { helper, VERSION } from 'utils';
+ * // 或者使用默认导入
+ * import utils from 'utils';
+ *
+ * function main() {
+ *   helper();
+ *   console.log(VERSION);
+ * }
+ *
+ * CommonJS 模块示例：
+ * // utils.js (CommonJS 风格)
+ * function helper() {
+ *   console.log("辅助函数");
+ * }
+ * module.exports = { helper };
+ *
+ * // main.js
+ * const utils = require('utils');
+ *
+ * 支持的导入语法：
+ * - import x from 'module'           // 默认导入
+ * - import { a, b } from 'module'    // 命名导入
+ * - import * as x from 'module'      // 命名空间导入
+ * - import 'module'                  // 副作用导入
+ * - const x = require('module')      // CommonJS 导入
+ *
+ * 支持的导出语法：
+ * - export function name() {}
+ * - export const name = value
+ * - export { a, b, c }
+ * - export default value
+ * - module.exports = { ... }
+ * - exports.name = value
+ */
+
+// ==================== 模块系统 ====================
+
+/**
+ * require - 导入模块
+ * @param moduleName 模块名称（可以省略 .js 后缀）
+ * @returns 模块导出的内容
+ */
+declare function require(moduleName: string): any;
+
+/**
+ * module - 模块对象
+ */
+declare const module: {
+  /** 导出的内容 */
+  exports: any;
+};
+
+/**
+ * exports - module.exports 的别名
+ */
+declare const exports: any;
+
+/**
+ * export - ES6 模块导出（编译时会转换为 module.exports）
+ *
+ * 支持的语法：
+ * - export function name() {}
+ * - export const name = value
+ * - export let name = value
+ * - export var name = value
+ * - export { name1, name2 }
+ * - export default value
  */
 
 // ==================== 全局对象 ====================
@@ -18,6 +98,9 @@ declare const Game: {
   /** 获取玩家的所有建筑 */
   getMyStructures(): Structure[];
 
+  /** 获取玩家的所有空间站 */
+  getMyStations(): SpaceStation[];
+
   /** 获取星系对象 */
   getGalaxy(galaxySeed: number): Galaxy;
 
@@ -30,24 +113,6 @@ declare const Game: {
   // 星系查询
   /** 获取有视野的星系列表 */
   getVisibleGalaxies(): number[];
-
-  // 飞船查询
-  /** 获取指定星系的所有飞船（不区分所有者）*/
-  getAllShips(galaxyId: number): Ship[];
-
-  /** 查找敌对飞船 */
-  findHostileShips(galaxyId: number): Ship[];
-
-  // 建筑查询
-  /** 获取指定星系的所有建筑（不区分所有者）*/
-  getAllStructures(galaxyId: number): Structure[];
-
-  /** 查找敌对建筑 */
-  findHostileStructures(galaxyId: number): Structure[];
-
-  // 区域扫描
-  /** 扫描指定区域 */
-  scanArea(galaxyId: number, x: number, y: number, radius: number): ScanResult;
 };
 
 /**
@@ -94,14 +159,14 @@ declare const RESOURCE: {
   CRYSTAL: "crystal";
   DEUTERIUM: "deuterium";
   METAL: "metal";
-  ALLOY: "alloy";
   ENERGY: "energy";
+  ALLOY: "alloy";
+  MISSILE: "missile";
 };
 
 // ==================== 建筑类型常量 ====================
 
 declare const STRUCTURE: {
-  STATION: "station";
   MINING_FACILITY: "mining_facility";
   IRON_EXTRACTOR: "iron_extractor";
   CRYSTAL_HARVESTER: "crystal_harvester";
@@ -133,6 +198,8 @@ declare const COMPONENT: {
   SHIELD_GENERATOR: "shield_generator_component";
   ARMOR_PLATING: "armor_plating";
   TARGETING_SYSTEM: "targeting_system";
+  MISSILE_LAUNCHER: "missile_launcher";
+  LASER_WEAPON: "laser_weapon";
   POWER_CORE: "power_core";
   SENSOR_ARRAY: "sensor_array";
   CLOAKING_DEVICE: "cloaking_device";
@@ -315,6 +382,39 @@ interface Ship extends StorageContainer {
 
   // 战斗方法
   attackTarget(targetId: number): boolean;
+
+  /**
+   * 发射导弹攻击目标（需要 MISSILE_LAUNCHER 组件）
+   * @param target 目标对象（飞船或建筑对象）
+   * @returns 是否成功发射
+   */
+  fireMissile(target: Ship | Structure): boolean;
+
+  /**
+   * 发射激光攻击目标（需要 LASER_WEAPON 组件）
+   * @param target 目标对象（飞船或建筑对象）
+   * @returns 是否成功发射
+   */
+  fireLaser(target: Ship | Structure): boolean;
+
+  /**
+   * 获取当前携带的导弹数量
+   * @returns 导弹数量
+   */
+  getMissileCount(): number;
+
+  /**
+   * 获取导弹发射器的剩余冷却时间（ticks）
+   * @returns 剩余冷却时间
+   */
+  getMissileCooldown(): number;
+
+  /**
+   * 检查激光武器是否可以使用（是否有足够能量）
+   * @returns 是否可用
+   */
+  canFireLaser(): boolean;
+
   repair(targetId: number): boolean;
 
   // 护盾方法
@@ -338,9 +438,23 @@ interface Ship extends StorageContainer {
    */
   withdraw(structure: Structure, resource: string, amount: number): boolean;
 
+  /**
+   * 丢弃资源（资源会虚空消失，后续可能改为放置在原地等待重新捡起）
+   * @param resource 资源类型
+   * @param amount 数量
+   */
+  drop(resource: string, amount: number): boolean;
+
   // 仓库管理（统一API）- 继承自 StorageContainer
   getStorageUsed(): number;
   getStorageAvailable(): number;
+
+  // 自毁
+  /**
+   * 飞船自毁（立即摧毁飞船）
+   * @returns 是否成功自毁
+   */
+  selfDestruct(): boolean;
 
   // 组件相关
   getComponents(): string[];
@@ -493,6 +607,13 @@ interface Structure extends StorageContainer {
   getStorageUsed(): number;
   getStorageAvailable(): number;
 
+  // 自毁
+  /**
+   * 建筑自毁（立即摧毁建筑）
+   * @returns 是否成功自毁
+   */
+  selfDestruct(): boolean;
+
   // 采集建筑方法
   harvest?(): boolean;
   getHarvestRate?(): { [resource: string]: number };
@@ -586,11 +707,54 @@ interface Galaxy {
   /** 查看指定位置的所有对象 */
   lookAt(x: number, y: number): any[];
 
+  // ========== 我的单位 ==========
+
   /** 获取我的所有飞船在此星系 */
   getMyShips(): Ship[];
 
   /** 获取我的所有建筑在此星系 */
   getMyStructures(): Structure[];
+
+  /** 获取我的所有空间站在此星系 */
+  getMyStations(): SpaceStation[];
+
+  // ========== 所有单位（包括其他玩家） ==========
+
+  /** 获取所有飞船在此星系（包括其他玩家的，隐形飞船除外） */
+  getAllShips(): Ship[];
+
+  /** 获取所有建筑在此星系（包括其他玩家的） */
+  getAllStructures(): Structure[];
+
+  /** 获取所有空间站在此星系（包括其他玩家的） */
+  getAllStations(): SpaceStation[];
+
+  // ========== 指定玩家的单位 ==========
+
+  /** 获取指定玩家的飞船在此星系 */
+  getShipsByOwner(ownerId: number): Ship[];
+
+  /** 获取指定玩家的建筑在此星系 */
+  getStructuresByOwner(ownerId: number): Structure[];
+
+  /** 获取指定玩家的空间站在此星系 */
+  getStationsByOwner(ownerId: number): SpaceStation[];
+
+  // ========== 敌对单位 ==========
+
+  /** 查找敌对飞船（所有非己方飞船） */
+  findHostileShips(): Ship[];
+
+  /** 查找敌对建筑（所有非己方建筑） */
+  findHostileStructures(): Structure[];
+
+  /** 查找敌对空间站（所有非己方空间站） */
+  findHostileStations(): SpaceStation[];
+
+  // ========== 区域扫描 ==========
+
+  /** 扫描指定范围内的所有对象 */
+  scanArea(x: number, y: number, radius: number): ScanResult;
 }
 
 /** 星球对象 */
@@ -609,6 +773,8 @@ interface Planet {
 
 /** 空间站对象 */
 interface SpaceStation {
+  /** 空间站ID（格式：station_galaxyId_x_y） */
+  id: string;
   name: string;
   /** 类型（固定为 "space_station"） */
   type: string;
@@ -625,11 +791,20 @@ interface SpaceStation {
   progress: number;
   /** 所有者ID */
   ownerId?: number;
+  /** 防御力 */
+  defense?: number;
   /** 空间站上的所有建筑列表（仅包含你自己的建筑） */
   structures: Structure[];
 
   /** 获取空间站上的所有建筑（方法形式，效果同 structures 属性） */
   getStructures(): Structure[];
+
+  /**
+   * 空间站自毁（立即摧毁空间站）
+   * 注意：空间站上必须没有任何建筑，需要先拆除所有建筑
+   * @returns 是否成功自毁
+   */
+  selfDestruct(): boolean;
 }
 
 /** 跳跃门对象 */
