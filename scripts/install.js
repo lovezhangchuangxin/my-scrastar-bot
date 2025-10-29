@@ -7,10 +7,18 @@ if (!fs.existsSync(".secret.json")) {
     ".secret.json",
     JSON.stringify(
       {
-        token: "your token",
-        protocol: "http",
-        hostname: "ddns.fxcodeo.com",
-        port: 20003,
+        official: {
+          token: "your token",
+          protocol: "https",
+          hostname: "scrastar.com",
+          port: 443,
+        },
+        test: {
+          token: "your token",
+          protocol: "http",
+          hostname: "ddns.fxcodeo.com",
+          port: 20003,
+        },
       },
       null,
       2

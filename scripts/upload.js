@@ -5,34 +5,52 @@ import axios from "axios";
 /**
  * 上传代码到服务器
  */
-export async function uploadCode() {
-  const config = readConfig();
-  if (!config) return;
+export async function uploadCode(name) {
+  const allConfig = readConfig();
+  if (!allConfig) {
+    console.log("请先配置 .secret.json 文件");
+    return;
+  }
+
+  const config = allConfig[name];
+  if (!config) {
+    console.log(`.secret.json 文件中不存在名为 ${name} 的配置`);
+    return;
+  }
 
   const code = readCode();
-  if (!code) return;
+  if (!code) {
+    console.log("代码内容为空，将跳过上传");
+    return;
+  }
 
   const url = `${config.protocol}://${config.hostname}:${config.port}/api/code`;
   const token = config.token;
-  const response = await axios.post(
-    url,
-    JSON.stringify({
-      code,
-      filename: "main.js",
-      is_active: true,
-    }),
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "X-API-Token": token,
-      },
-    }
-  );
+  console.log("请求地址:", url, "token:", token);
+  try {
+    const response = await axios.post(
+      url,
+      JSON.stringify({
+        code,
+        filename: "main.js",
+        is_active: true,
+      }),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "X-API-Token": token,
+        },
+        timeout: 15000,
+      }
+    );
 
-  if (response.status === 200) {
-    console.log("代码上传游戏服务器成功");
-  } else {
-    console.log("代码上传游戏服务器失败");
+    if (response.status === 200) {
+      console.log("代码上传游戏服务器成功");
+    } else {
+      console.log("代码上传游戏服务器失败");
+    }
+  } catch (error) {
+    console.log("代码上传游戏服务器失败，错误：", error);
   }
 }
 
