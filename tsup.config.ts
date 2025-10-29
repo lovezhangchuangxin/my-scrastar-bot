@@ -16,6 +16,6 @@ export default defineConfig({
   minify: false,
   // 打包成功后的回调
   async onSuccess() {
-    uploadCode();
+    uploadCode(process.env.SERVER);
   },
 });

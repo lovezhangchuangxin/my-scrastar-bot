@@ -27,21 +27,21 @@
 
    如何获取 `token` ？
 
-   在游戏界面点击右上角的用户名，打开菜单点击设置就可以找到 `token`。
+   在游戏界面点击右上角的用户名，打开菜单点击设置在最下面就可以找到 `token`。
 
 2. 开发调试：
 
    ```bash
-   pnpm dev
+   pnpm dev:official
    ```
 
 3. 构建打包：
 
    ```bash
-   pnpm build
+   pnpm build:official
    ```
 
-无论是 `pnpm dev` 还是 `pnpm build`，都会将生成的代码上传到游戏服务器。
+无论是 `pnpm dev:official` 还是 `pnpm build:official`，都会将生成的代码上传到游戏服务器。
 
 ## 注意
 

@@ -6,8 +6,10 @@
   "type": "module",
   "scripts": {
     "test": "vitest",
-    "dev": "tsup --watch",
-    "build": "tsup",
+    "dev:official": "cross-env SERVER=official tsup --watch",
+    "dev:test": "cross-env SERVER=test tsup --watch",
+    "build:official": "cross-env SERVER=official tsup",
+    "build:test": "cross-env SERVER=test tsup",
     "install": "node scripts/install.js"
   },
   "keywords": [
@@ -24,6 +26,7 @@
   "devDependencies": {
     "@types/node": "^24.9.1",
     "axios": "^1.12.2",
+    "cross-env": "^10.1.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.3"
