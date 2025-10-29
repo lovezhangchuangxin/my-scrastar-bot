@@ -10,7 +10,7 @@ if (!fs.existsSync(".secret.json")) {
         official: {
           token: "your token",
           protocol: "https",
-          hostname: "scrastar.com",
+          hostname: "www.scrastar.com",
           port: 443,
         },
         test: {
