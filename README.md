@@ -1,6 +1,6 @@
 # my-scrastar-bot
 
-我的用于游戏 [Scrastar](http://ddns.fxcodeo.com:20003/game) 的机器人代码。
+我的用于游戏 [Scrastar](https://www.scrastar.com/) 的机器人代码。
 
 本模版提供基础的类型提示和代码打包上传功能。**不包含 bot 实际代码的模版见 `template` 分支。**
 
